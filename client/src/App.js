@@ -7,6 +7,7 @@ import TodoList from "./components/TodoList";
 
 function App() {
   const [todos, setTodos] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`http://localhost:3030/jsonstore/todos`)
@@ -14,8 +15,26 @@ function App() {
       .then((data) => {
         const result = Object.keys(data).map((id) => ({ id, ...data[id] }));
         setTodos(result);
+        setLoading(false);
       });
   }, []);
+
+  const onTodoAdd = () => {
+    const lastId = todos[todos.length - 1].id;
+    const splitedId = lastId.split("_");
+    let idName = splitedId[0];
+    let idNum = Number(splitedId[1]);
+    const id = [idName, ++idNum].join("_");
+    const text = prompt("Task name: ");
+
+    const newTask = {
+      id: id,
+      text,
+      isCompleted: false,
+    };
+    console.log(newTask);
+    setTodos((state) => [...state, newTask]);
+  };
 
   const toggleTodoStatus = (id) => {
     setTodos((state) =>
@@ -34,13 +53,17 @@ function App() {
           <h1>Todo List</h1>
 
           <div className="add-btn-container">
-            <button className="btn">+ Add new Todo</button>
+            <button className="btn" onClick={onTodoAdd}>
+              + Add new Todo
+            </button>
           </div>
 
           <div className="table-wrapper">
-            {/* <Loading /> */}
-
-            <TodoList todos={todos} toggleTodoStatus={toggleTodoStatus} />
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <TodoList todos={todos} toggleTodoStatus={toggleTodoStatus} />
+            )}
           </div>
         </section>
       </main>
