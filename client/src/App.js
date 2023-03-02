@@ -12,10 +12,18 @@ function App() {
     fetch(`http://localhost:3030/jsonstore/todos`)
       .then((res) => res.json())
       .then((data) => {
-        setTodos(Object.values(data));
-        console.log(data);
+        const result = Object.keys(data).map((id) => ({ id, ...data[id] }));
+        setTodos(result);
       });
   }, []);
+
+  const toggleTodoStatus = (id) => {
+    setTodos((state) =>
+      state.map((t) =>
+        t.id === id ? { ...t, isCompleted: !t.isCompleted } : t
+      )
+    );
+  };
 
   return (
     <div className="App">
@@ -32,7 +40,7 @@ function App() {
           <div className="table-wrapper">
             {/* <Loading /> */}
 
-            <TodoList todos={todos} />
+            <TodoList todos={todos} toggleTodoStatus={toggleTodoStatus} />
           </div>
         </section>
       </main>
